@@ -1,10 +1,9 @@
-import React, { FormEvent, useRef } from "react";
+import { createClient } from "@supabase/supabase-js";
+import { nanoid } from "nanoid";
+import { FormEvent, useRef } from "react";
 import { Replicache, TEST_LICENSE_KEY, WriteTransaction } from "replicache";
 import { useSubscribe } from "replicache-react";
-import { nanoid } from "nanoid";
-import Pusher from "pusher-js";
 import { Message, MessageWithID } from "../types";
-import { createClient } from "@supabase/supabase-js";
 
 const rep = process.browser
   ? new Replicache({
@@ -43,21 +42,23 @@ export default function Home() {
     { default: [] }
   );
 
-  const usernameRef = useRef<HTMLInputElement>();
-  const contentRef = useRef<HTMLInputElement>();
+  const usernameRef = useRef<HTMLInputElement>(null);
+  const contentRef = useRef<HTMLInputElement>(null);
 
-  const onSubmit = (e) => {
+  const onSubmit = (e: FormEvent) => {
     e.preventDefault();
-    const last = messages.length && messages[messages.length - 1][1];
-    const order = (last?.order ?? 0) + 1;
+    const last = messages.at(messages.length - 1);
+    const order = (last ? last[1].order : 0) + 1;
 
-    rep.mutate.createMessage({
-      id: nanoid(),
-      from: usernameRef.current.value,
-      content: contentRef.current.value,
-      order,
-    });
-    contentRef.current.value = "";
+    if (rep && usernameRef.current && contentRef.current) {
+      rep.mutate.createMessage({
+        id: nanoid(),
+        from: usernameRef.current.value,
+        content: contentRef.current.value,
+        order,
+      });
+      contentRef.current.value = "";
+    }
   };
 
   return (
@@ -105,8 +106,8 @@ function listen() {
 
   // Listen for new messages, and poke whenever we get one.
   const client = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 
   const channelA = client.channel("room-1");

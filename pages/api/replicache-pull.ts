@@ -1,8 +1,8 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import { PullResponse } from "replicache";
-import { serverID } from "../../server/db";
-import { PrismaTransaction, prisma } from "../../util/prisma";
 import { Prisma } from "@prisma/client";
+import { NextApiRequest, NextApiResponse } from "next";
+import { PatchOperation, PullResponse } from "replicache";
+import { serverID } from "../../server/db";
+import { PrismaTransaction, prisma } from "../../utils/prisma";
 
 export default async function (req: NextApiRequest, res: NextApiResponse) {
   const pull = req.body;
@@ -14,15 +14,8 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
   try {
     await prisma.$transaction(
       async (prisma) => {
-        // Read all data in a single transaction so it's consistent.
-        // Get current version.
-        // const { version: currentVersion } = await t.one<{ version: number }>(
-        //   "select version from replicache_server where id = $1",
-        //   serverID
-        // );
-
         const { version: currentVersion } =
-          await prisma.replicacheServer.findFirst({
+          await prisma.replicacheServer.findFirstOrThrow({
             where: {
               id: serverID,
             },
@@ -44,19 +37,6 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
           fromVersion
         );
 
-        // Get changed domain objects since requested version.
-        // const changed = await t.manyOrNone<{
-        //   id: string;
-        //   sender: string;
-        //   content: string;
-        //   ord: number;
-        //   version: number;
-        //   deleted: boolean;
-        // }>(
-        //   "select id, sender, content, ord, version, deleted from message where version > $1",
-        //   fromVersion
-        // );
-
         const changed = await prisma.message.findMany({
           select: {
             id: true,
@@ -74,7 +54,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
         });
 
         // Build and return response.
-        const patch = [];
+        const patch: PatchOperation[] = [];
         for (const row of changed) {
           const {
             id,
@@ -120,7 +100,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
     );
   } catch (e) {
     console.error(e);
-    res.status(500).send(e.toString());
+    res.status(500).send(e?.toString());
   } finally {
     console.log("Processed pull in", Date.now() - t0);
   }
@@ -131,13 +111,6 @@ async function getLastMutationIDChanges(
   clientGroupID: string,
   fromVersion: number
 ) {
-  // const rows = await t.manyOrNone<{ id: string; last_mutation_id: number }>(
-  //   `select id, last_mutation_id
-  //   from replicache_client
-  //   where client_group_id = $1 and version > $2`,
-  //   [clientGroupID, fromVersion]
-  // );
-
   const rows = await prisma.replicacheClient.findMany({
     select: {
       id: true,

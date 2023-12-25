@@ -4,7 +4,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { MutationV1 } from "replicache";
 import { serverID } from "../../server/db";
 import { MessageWithID } from "../../types";
-import { PrismaTransaction, prisma } from "../../util/prisma";
+import { PrismaTransaction, prisma } from "../../utils/prisma";
 
 export default async function (req: NextApiRequest, res: NextApiResponse) {
   const push = req.body;
@@ -71,7 +71,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
     await sendPoke();
   } catch (e) {
     console.error(e);
-    res.status(500).send(e.toString());
+    res.status(500).send(e?.toString());
   } finally {
     console.log("Processed push in", Date.now() - t0);
   }
@@ -81,21 +81,16 @@ async function processMutation(
   prisma: PrismaTransaction,
   clientGroupID: string,
   mutation: MutationV1,
-  error?: string | undefined
+  error?: string | undefined | unknown
 ) {
   const { clientID } = mutation;
 
-  // Get the previous version and calculate the next one.
-  //   const { version: prevVersion } = await t.one(
-  //     "select version from replicache_server where id = $1 for update",
-  //     serverID
-  //   );
-
-  const { version: prevVersion } = await prisma.replicacheServer.findFirst({
-    where: {
-      id: serverID,
-    },
-  });
+  const { version: prevVersion } =
+    await prisma.replicacheServer.findFirstOrThrow({
+      where: {
+        id: serverID,
+      },
+    });
   const nextVersion = prevVersion + 1;
 
   const lastMutationID = await getLastMutationID(prisma, clientID);
@@ -156,13 +151,6 @@ async function processMutation(
     nextMutationID,
     nextVersion
   );
-
-  // Update global version.
-  //   await t.none("update replicache_server set version = $1 where id = $2", [
-  //     nextVersion,
-  //     serverID,
-  //   ]);
-
   await prisma.replicacheServer.updateMany({
     where: {
       id: serverID,
@@ -177,11 +165,6 @@ export async function getLastMutationID(
   prisma: PrismaTransaction,
   clientID: string
 ) {
-  //   const clientRow = await t.oneOrNone(
-  //     "select last_mutation_id from replicache_client where id = $1",
-  //     clientID
-  //   );
-
   const clientRow = await prisma.replicacheClient.findFirst({
     where: {
       id: clientID,
@@ -201,15 +184,6 @@ async function setLastMutationID(
   mutationID: number,
   version: number
 ) {
-  //   const result = await t.result(
-  //     `update replicache_client set
-  //       client_group_id = $2,
-  //       last_mutation_id = $3,
-  //       version = $4
-  //     where id = $1`,
-  //     [clientID, clientGroupID, mutationID, version]
-  //   );
-
   const result = await prisma.replicacheClient.updateMany({
     where: {
       id: clientID,
@@ -222,16 +196,6 @@ async function setLastMutationID(
   });
 
   if (result.count === 0) {
-    // await t.none(
-    //   `insert into replicache_client (
-    //     id,
-    //     client_group_id,
-    //     last_mutation_id,
-    //     version
-    //   ) values ($1, $2, $3, $4)`,
-    //   [clientID, clientGroupID, mutationID, version]
-    // );
-
     await prisma.replicacheClient.create({
       data: {
         id: clientID,
@@ -248,13 +212,6 @@ async function createMessage(
   { id, from, content, order }: MessageWithID,
   version: number
 ) {
-  //   await t.none(
-  //     `insert into message (
-  //     id, sender, content, ord, deleted, version) values
-  //     ($1, $2, $3, $4, false, $5)`,
-  //     [id, from, content, order, version]
-  //   );
-
   await prisma.message.create({
     data: {
       id: id,
@@ -268,19 +225,9 @@ async function createMessage(
 }
 
 async function sendPoke() {
-  //   const pusher = new Pusher({
-  //     appId: process.env.NEXT_PUBLIC_REPLICHAT_PUSHER_APP_ID,
-  //     key: process.env.NEXT_PUBLIC_REPLICHAT_PUSHER_KEY,
-  //     secret: process.env.NEXT_PUBLIC_REPLICHAT_PUSHER_SECRET,
-  //     cluster: process.env.NEXT_PUBLIC_REPLICHAT_PUSHER_CLUSTER,
-  //     useTLS: true,
-  //   });
-
-  //   await pusher.trigger("default", "poke", {});
-
   const client = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 
   const channelA = client.channel("room-1");
