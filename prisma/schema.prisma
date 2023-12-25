@@ -1,0 +1,32 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Message {
+  id      String  @id
+  sender  String
+  content String
+  ord     Int
+  deleted Boolean
+  version Int
+}
+
+model ReplicacheServer {
+  id      Int @id
+  version Int
+}
+
+model ReplicacheClient {
+  id               String @id
+  client_group_id  String
+  last_mutation_id Int
+  version          Int
+}
