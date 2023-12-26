@@ -1,7 +1,6 @@
 import { auth } from "@/auth";
-import { MessageWithID } from "@/types";
 import { PrismaTransaction, prisma } from "@/utils/prisma";
-import { MutationV1Custom } from "@/utils/replicacheMutations";
+import { ClientMessage, MutationV1Custom } from "@/utils/replicacheMutations";
 import { Prisma } from "@prisma/client";
 import { createClient } from "@supabase/supabase-js";
 
@@ -139,7 +138,7 @@ async function processMutation(
       case "createMessage":
         await createMessage(
           prisma,
-          mutation.args as MessageWithID,
+          mutation.args as ClientMessage,
           nextVersion,
           serverId
         );
@@ -222,16 +221,16 @@ async function setLastMutationID(
 
 async function createMessage(
   prisma: PrismaTransaction,
-  { id, from, content, order }: MessageWithID,
+  { id, sender, content, ord }: ClientMessage,
   version: number,
   serverId: string
 ) {
   await prisma.message.create({
     data: {
       id: id,
-      sender: from,
+      sender: sender,
       content: content,
-      ord: order,
+      ord: ord,
       deleted: false,
       version: version,
       replicacheServerId: serverId,
