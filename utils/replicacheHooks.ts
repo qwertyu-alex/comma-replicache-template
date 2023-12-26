@@ -3,9 +3,9 @@
 import { createClient } from "@supabase/supabase-js";
 import { signIn, useSession } from "next-auth/react";
 import { useEffect, useMemo } from "react";
-import { MutatorDefs, Replicache, TEST_LICENSE_KEY } from "replicache";
-import { ClientMessage, mutators } from "./replicacheMutations";
+import { Replicache } from "replicache";
 import { useSubscribe } from "replicache-react";
+import { ClientMessage, mutators } from "./replicacheMutations";
 
 export const useReplicache = () => {
   const session = useSession();
@@ -22,7 +22,7 @@ export const useReplicache = () => {
     if (status === "authenticated" && userId) {
       const r = new Replicache({
         name: `${userId}`,
-        licenseKey: TEST_LICENSE_KEY,
+        licenseKey: process.env.NEXT_PUBLIC_REPLICACHE_LICENSE!,
         pushURL: `/api/replicache/push`,
         pullURL: `/api/replicache/pull`,
         mutators,

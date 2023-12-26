@@ -22,6 +22,7 @@ Uses the following technologies:
 ```sh
 
 cp .env.example .env
+npx replicache@latest get-license
 # Fill in the .env file with appropriate environment variables
 
 # I am using pnpm, but feel free to use something else
