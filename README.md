@@ -1,27 +1,56 @@
-# Basic CSS example
+# Template for making local first applications
 
-Next.js has built-in support for [CSS Modules](https://nextjs.org/docs/basic-features/built-in-css-support#adding-component-level-css) allowing you to write scoped CSS by automatically creating a unique class name. CSS Module files can be imported anywhere in your application and you don't have to worry about collisions.
+This template simplifies the inital setup of making a local first application.
+It uses Replicache and NextJs. Some efforts has been made in this template to improve the TypeScript experience, although there are still some additional things that can be improve. I might come around to do that. 
 
-## Deploy your own
+Uses the following technologies:
+- NextJs
+    - React framework
+    - Uses App router
+- Replicache
+    - Local first framework
+- AuthJs
+    - Auth framework
+    - v5, credentials (username, password)
+- Prisma
+    - Database ORM
+- Supabase
+    - Websocket to listen for data changes
 
-Deploy the example using [Vercel](https://vercel.com?utm_source=github&utm_medium=readme&utm_campaign=next-example) or preview live with [StackBlitz](https://stackblitz.com/github/vercel/next.js/tree/canary/examples/basic-css)
+## Setup
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/vercel/next.js/tree/canary/examples/basic-css&project-name=basic-css&repository-name=basic-css)
+```sh
 
-## How to use
+cp .env.example .env
+# Fill in the .env file with appropriate environment variables
 
-Execute [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with [npm](https://docs.npmjs.com/cli/init), [Yarn](https://yarnpkg.com/lang/en/docs/cli/create/), or [pnpm](https://pnpm.io) to bootstrap the example:
+# I am using pnpm, but feel free to use something else
+pnpm install
 
-```bash
-npx create-next-app --example basic-css basic-css-app
+# Setup database (Requires docker)
+npx supabase start
+npx prisma db push
+
+pnpm dev
 ```
 
-```bash
-yarn create next-app --example basic-css basic-css-app
-```
+## What is local first type applications
+Localfirst (also called offline first in mobile) is a way of building application that by default works without connection to a server. This means that changes happens locally, and occasionally gets synced on server. "Source of truth" is defined on the client rather on the server. 
 
-```bash
-pnpm create next-app --example basic-css basic-css-app
-```
+The advatage of local first type applications is two fold:
+- Speed
+- Accessibility
 
-Deploy it to the cloud with [Vercel](https://vercel.com/new?utm_source=github&utm_medium=readme&utm_campaign=next-example) ([Documentation](https://nextjs.org/docs/deployment)).
+Local first applications are faster than traditional client-server applications because changes does not need to wait for the server. Changes happens without a round-trip to the server. 
+
+Because we by default do not need the server, if the connection to the server goes down, we can still work, and changes will still be saved on the local machine. This makes apps more accessible as you can use them even on "offline mode". 
+
+## Considerations
+Replicache is a client side framework that utilizes the IndexedDB browser database. 
+It has a generous free tier but is closed source so debugging can sometimes be complex.
+For any issues, visit [https://github.com/rocicorp/replicache](https://github.com/rocicorp/replicache)
+
+
+## 🧐
+Follow me on X or reach out if you have any questions:
+[qwertyu_alex](https://twitter.com/qwertyu_alex)
