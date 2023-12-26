@@ -1,5 +1,7 @@
 # Template for making local first applications
 
+![Local First](https://github.com/qwertyu-alex/comma-replicache-template/assets/10188306/cc38e23b-d5cc-4420-971c-d68699b91602)
+
 This template simplifies the inital setup of making a local first application.
 It uses Replicache and NextJs. Some efforts has been made in this template to improve the TypeScript experience, although there are still some additional things that can be improve. I might come around to do that. 
 
