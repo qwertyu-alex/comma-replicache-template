@@ -115,7 +115,7 @@ export const POST = auth(async (req) => {
     console.error(e);
     return Response.json({ message: e?.toString() }, { status: 500 });
   }
-});
+}) as any;
 
 async function getLastMutationIDChanges(
   prisma: PrismaTransaction,

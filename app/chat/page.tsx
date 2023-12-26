@@ -1,6 +1,7 @@
 "use client";
 import { useReplicache, useReplicachePokeListener } from "@/utils/replicache";
 import { nanoid } from "nanoid";
+import { useSession } from "next-auth/react";
 import { FormEvent, useRef } from "react";
 import { useSubscribe } from "replicache-react";
 import { Message } from "types";
@@ -8,6 +9,8 @@ import { Message } from "types";
 export default function Home() {
   const { rep } = useReplicache();
   useReplicachePokeListener({ rep });
+
+  const session = useSession();
 
   const messages = useSubscribe(
     rep,
@@ -43,6 +46,7 @@ export default function Home() {
 
   return (
     <div>
+      <h1>{session.data?.user.email}</h1>
       <form onSubmit={onSubmit}>
         <input ref={usernameRef} required /> says:{" "}
         <input ref={contentRef} required /> <input type="submit" />

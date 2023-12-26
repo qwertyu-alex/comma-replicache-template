@@ -1,10 +1,9 @@
 import { auth } from "@/auth";
-import { serverID } from "@/server/db";
 import { MessageWithID } from "@/types";
 import { PrismaTransaction, prisma } from "@/utils/prisma";
 import { Prisma } from "@prisma/client";
 import { createClient } from "@supabase/supabase-js";
-import { MutationV1, PatchOperation, PullResponse } from "replicache";
+import { MutationV1 } from "replicache";
 
 export const POST = auth(async (req) => {
   if (!req.auth) {
@@ -88,7 +87,7 @@ export const POST = auth(async (req) => {
   } finally {
     console.log("Processed push in", Date.now() - t0);
   }
-});
+}) as any;
 
 async function processMutation(
   prisma: PrismaTransaction,
@@ -177,10 +176,7 @@ async function processMutation(
   });
 }
 
-export async function getLastMutationID(
-  prisma: PrismaTransaction,
-  clientID: string
-) {
+async function getLastMutationID(prisma: PrismaTransaction, clientID: string) {
   const clientRow = await prisma.replicacheClient.findFirst({
     where: {
       id: clientID,
