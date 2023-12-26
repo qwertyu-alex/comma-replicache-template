@@ -39,8 +39,6 @@ export const useReplicache = () => {
     // }
 
     if (status === "authenticated" && userId) {
-      console.log(session);
-
       const r = new Replicache({
         name: `${userId}`,
         licenseKey: TEST_LICENSE_KEY,
@@ -90,5 +88,9 @@ export const useReplicachePokeListener = ({
         rep.pull();
       })
       .subscribe();
+
+    return () => {
+      channelA.unsubscribe();
+    };
   }, [rep]);
 };

@@ -24,8 +24,6 @@ export const POST = auth(async (req) => {
 
   const t0 = Date.now();
 
-  console.log("mutations", push.mutations);
-
   try {
     // Iterate each mutation in the push.
     for (const mutation of push.mutations) {
@@ -239,6 +237,7 @@ async function createMessage(
 }
 
 async function sendPoke() {
+  const t0 = Date.now();
   const client = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -252,6 +251,5 @@ async function sendPoke() {
     payload: {},
   });
 
-  const t0 = Date.now();
   console.log("Sent poke in", Date.now() - t0);
 }
