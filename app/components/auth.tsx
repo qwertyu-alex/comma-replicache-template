@@ -1,6 +1,5 @@
 "use client";
 
-import { signIn } from "@/auth";
 import { authenticate, signUp } from "@/utils/auth";
 import { useState } from "react";
 import { useFormState, useFormStatus } from "react-dom";

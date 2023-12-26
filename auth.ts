@@ -17,7 +17,12 @@ async function getUser(email: string): Promise<User | null> {
   }
 }
 
-export const { auth, signIn, signOut, handlers } = NextAuth({
+export const {
+  auth,
+  signIn,
+  signOut,
+  handlers: { GET, POST },
+} = NextAuth({
   ...authConfig,
   callbacks: {
     async jwt({ token, user, trigger }) {

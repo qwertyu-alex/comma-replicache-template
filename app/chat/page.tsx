@@ -57,12 +57,16 @@ function MessageList({
 }: {
   messages: (readonly [string, Message])[];
 }) {
-  return messages.map(([k, v]) => {
-    return (
-      <div key={k}>
-        <b>{v.from}: </b>
-        {v.content}
-      </div>
-    );
-  });
+  return (
+    <>
+      {messages.map(([k, v]) => {
+        return (
+          <div key={k}>
+            <b>{v.from}: </b>
+            {v.content}
+          </div>
+        );
+      })}
+    </>
+  );
 }

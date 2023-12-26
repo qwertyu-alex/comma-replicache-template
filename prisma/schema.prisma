@@ -11,17 +11,23 @@ datasource db {
 }
 
 model Message {
-  id      String  @id
-  sender  String
-  content String
-  ord     Int
-  deleted Boolean
-  version Int
+  id                 String           @id
+  sender             String
+  content            String
+  ord                Int
+  deleted            Boolean
+  version            Int
+  replicacheServerId String
+  replicacheServer   ReplicacheServer @relation(fields: [replicacheServerId], references: [id], onDelete: Cascade)
 }
 
+/// Replicache Space State
 model ReplicacheServer {
-  id      Int @id
+  id      String @id @default(cuid())
   version Int
+
+  userAuthorizations UserAuthorization[]
+  messages           Message[]
 }
 
 model ReplicacheClient {
@@ -61,15 +67,26 @@ model Session {
   @@index([userId])
 }
 
+model UserAuthorization {
+  id                 String           @id @default(cuid())
+  replicacheServerId String
+  replicacheServer   ReplicacheServer @relation(fields: [replicacheServerId], references: [id], onDelete: Cascade)
+
+  User User?
+}
+
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
-  password      String?
+  id                  String             @id @default(cuid())
+  name                String?
+  email               String?            @unique
+  emailVerified       DateTime?
+  image               String?
+  password            String?
+  userAuthorizationId String             @unique
+  userAuthorization   UserAuthorization? @relation(fields: [userAuthorizationId], references: [id], onDelete: Cascade)
+
+  accounts Account[]
+  sessions Session[]
 }
 
 model VerificationToken {

@@ -1,7 +1,9 @@
+"use client";
+
 import { MessageWithID } from "@/types";
 import { createClient } from "@supabase/supabase-js";
 import { signIn, useSession } from "next-auth/react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import {
   MutatorDefs,
   Replicache,
@@ -31,19 +33,25 @@ export const useReplicache = () => {
   const userId = session.data?.user.id;
 
   const rep = useMemo(() => {
+    // For some reason the hook renders on the server????
+    // if (typeof window === "undefined") {
+    //   return;
+    // }
+
     if (status === "authenticated" && userId) {
       console.log(session);
 
       const r = new Replicache({
         name: `${userId}`,
         licenseKey: TEST_LICENSE_KEY,
-        pushURL: `/api/replicache-push`,
-        pullURL: `/api/replicache-pull`,
+        pushURL: `/api/replicache/push`,
+        pullURL: `/api/replicache/pull`,
         mutators,
       });
 
-      // // This gets called when the push/pull API returns a `401`.
+      // This gets called when the push/pull API returns a `401`.
       const getAuth: typeof r.getAuth = () => {
+        console.log("Replicache push/pull - not authenticated");
         return signIn();
       };
 

@@ -9,8 +9,6 @@ export async function authenticate(
   prevState: string | undefined,
   formData: FormData
 ) {
-  console.log("AUTHENTICATE");
-
   try {
     await signIn("credentials", formData);
   } catch (error) {
@@ -30,8 +28,6 @@ export async function signUp(
   prevState: string | undefined,
   formData: FormData
 ) {
-  console.log("SIGNUP");
-
   try {
     const email = formData.get("email");
     const password = formData.get("password");
@@ -44,6 +40,9 @@ export async function signUp(
       data: {
         email: email.toString(),
         password: (await bcrypt.hash(password.toString(), 10)).toString(),
+        userAuthorization: {
+          create: { replicacheServer: { create: { version: 1 } } },
+        },
       },
     });
 

@@ -4,7 +4,7 @@
 
 // const { isolationLevel } = pgp.txMode;
 
-export const serverID = 1;
+export const serverID = "1";
 
 // async function initDB() {
 //   console.log("initializing database...");
