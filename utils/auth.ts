@@ -41,7 +41,7 @@ export async function signUp(
         email: email.toString(),
         password: (await bcrypt.hash(password.toString(), 10)).toString(),
         userAuthorization: {
-          create: { replicacheServer: { create: { version: 1 } } },
+          create: { replicacheSpace: { create: { version: 1 } } },
         },
       },
     });

@@ -25,8 +25,8 @@ export const POST = auth(async (req) => {
   try {
     const dbRes = await prisma.$transaction(
       async (prisma) => {
-        const { version: currentVersion, id: serverId } =
-          await prisma.replicacheServer.findFirstOrThrow({
+        const { version: currentVersion, id: spaceId } =
+          await prisma.replicacheSpace.findFirstOrThrow({
             where: {
               userAuthorizations: { every: { User: { id: user.id } } },
             },
@@ -62,7 +62,7 @@ export const POST = auth(async (req) => {
             version: {
               gt: fromVersion,
             },
-            replicacheServerId: serverId,
+            replicacheSpaceId: spaceId,
           },
         });
 

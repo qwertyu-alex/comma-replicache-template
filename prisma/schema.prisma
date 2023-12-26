@@ -11,18 +11,18 @@ datasource db {
 }
 
 model Message {
-  id                 String           @id
-  sender             String
-  content            String
-  ord                Int
-  deleted            Boolean
-  version            Int
-  replicacheServerId String
-  replicacheServer   ReplicacheServer @relation(fields: [replicacheServerId], references: [id], onDelete: Cascade)
+  id                String          @id
+  sender            String
+  content           String
+  ord               Int
+  deleted           Boolean
+  version           Int
+  replicacheSpaceId String
+  replicacheSpace   ReplicacheSpace @relation(fields: [replicacheSpaceId], references: [id], onDelete: Cascade)
 }
 
 /// Replicache Space State
-model ReplicacheServer {
+model ReplicacheSpace {
   id      String @id @default(cuid())
   version Int
 
@@ -68,9 +68,9 @@ model Session {
 }
 
 model UserAuthorization {
-  id                 String           @id @default(cuid())
-  replicacheServerId String
-  replicacheServer   ReplicacheServer @relation(fields: [replicacheServerId], references: [id], onDelete: Cascade)
+  id                String          @id @default(cuid())
+  replicacheSpaceId String
+  replicacheSpace   ReplicacheSpace @relation(fields: [replicacheSpaceId], references: [id], onDelete: Cascade)
 
   User User?
 }

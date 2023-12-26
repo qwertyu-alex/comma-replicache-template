@@ -97,8 +97,8 @@ async function processMutation(
 ) {
   const { clientID } = mutation;
 
-  const { version: prevVersion, id: serverId } =
-    await prisma.replicacheServer.findFirstOrThrow({
+  const { version: prevVersion, id: spaceId } =
+    await prisma.replicacheSpace.findFirstOrThrow({
       where: {
         userAuthorizations: { every: { User: { id: userId } } },
       },
@@ -140,7 +140,7 @@ async function processMutation(
           prisma,
           mutation.args as ClientMessage,
           nextVersion,
-          serverId
+          spaceId
         );
         break;
       default:
@@ -166,7 +166,7 @@ async function processMutation(
     nextMutationID,
     nextVersion
   );
-  await prisma.replicacheServer.updateMany({
+  await prisma.replicacheSpace.updateMany({
     where: {
       userAuthorizations: { every: { User: { id: userId } } },
     },
@@ -223,7 +223,7 @@ async function createMessage(
   prisma: PrismaTransaction,
   { id, sender, content, ord }: ClientMessage,
   version: number,
-  serverId: string
+  spaceId: string
 ) {
   await prisma.message.create({
     data: {
@@ -233,7 +233,7 @@ async function createMessage(
       ord: ord,
       deleted: false,
       version: version,
-      replicacheServerId: serverId,
+      replicacheSpaceId: spaceId,
     },
   });
 }
