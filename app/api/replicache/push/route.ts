@@ -1,9 +1,9 @@
 import { auth } from "@/auth";
 import { MessageWithID } from "@/types";
 import { PrismaTransaction, prisma } from "@/utils/prisma";
+import { MutationV1Custom } from "@/utils/replicacheMutations";
 import { Prisma } from "@prisma/client";
 import { createClient } from "@supabase/supabase-js";
-import { MutationV1 } from "replicache";
 
 export const POST = auth(async (req) => {
   if (!req.auth) {
@@ -20,13 +20,15 @@ export const POST = auth(async (req) => {
   }
 
   const push = body;
+  const mutations: MutationV1Custom[] = push.mutations; // TODO: Probably need to do some validation here
+
   console.log("Processing push", JSON.stringify(push));
 
   const t0 = Date.now();
 
   try {
     // Iterate each mutation in the push.
-    for (const mutation of push.mutations) {
+    for (const mutation of mutations) {
       const t1 = Date.now();
 
       try {
@@ -90,7 +92,7 @@ export const POST = auth(async (req) => {
 async function processMutation(
   prisma: PrismaTransaction,
   clientGroupID: string,
-  mutation: MutationV1,
+  mutation: MutationV1Custom,
   userId: string,
   error?: string | undefined | unknown
 ) {
@@ -143,6 +145,7 @@ async function processMutation(
         );
         break;
       default:
+        const _: never = mutation.name; // Exhaustiveness check
         throw new Error(`Unknown mutation: ${mutation.name}`);
     }
   } else {

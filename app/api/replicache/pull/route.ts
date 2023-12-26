@@ -89,9 +89,9 @@ export const POST = auth(async (req) => {
               op: "put",
               key: `message/${id}`,
               value: {
-                from: sender,
-                content: content,
-                order: ord,
+                sender,
+                content,
+                ord,
               },
             });
           }

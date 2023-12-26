@@ -1,30 +1,11 @@
 "use client";
 
-import { MessageWithID } from "@/types";
 import { createClient } from "@supabase/supabase-js";
 import { signIn, useSession } from "next-auth/react";
 import { useEffect, useMemo } from "react";
-import {
-  MutatorDefs,
-  Replicache,
-  TEST_LICENSE_KEY,
-  WriteTransaction,
-} from "replicache";
-
-const mutators = {
-  async createMessage(
-    tx: WriteTransaction,
-    { id, from, content, order }: MessageWithID
-  ) {
-    await tx.set(`message/${id}`, {
-      from,
-      content,
-      order,
-    });
-  },
-} satisfies MutatorDefs;
-
-type mutators = typeof mutators;
+import { MutatorDefs, Replicache, TEST_LICENSE_KEY } from "replicache";
+import { ClientMessage, mutators } from "./replicacheMutations";
+import { useSubscribe } from "replicache-react";
 
 export const useReplicache = () => {
   const session = useSession();
@@ -93,4 +74,23 @@ export const useReplicachePokeListener = ({
       channelA.unsubscribe();
     };
   }, [rep]);
+};
+
+export const useMessages = (input: {
+  rep: Replicache<mutators> | undefined;
+}) => {
+  const messages = useSubscribe(
+    input.rep,
+    async (tx) => {
+      const list = await tx
+        .scan<ClientMessage>({ prefix: "message/" })
+        .entries()
+        .toArray();
+      list.sort(([, { ord: a }], [, { ord: b }]) => a - b);
+      return list;
+    },
+    { default: [] }
+  );
+
+  return messages;
 };

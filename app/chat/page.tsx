@@ -1,29 +1,20 @@
 "use client";
-import { useReplicache, useReplicachePokeListener } from "@/utils/replicache";
+import {
+  useMessages,
+  useReplicache,
+  useReplicachePokeListener,
+} from "@/utils/replicacheHooks";
+import { ClientMessage } from "@/utils/replicacheMutations";
 import { nanoid } from "nanoid";
 import { useSession } from "next-auth/react";
 import { FormEvent, useRef } from "react";
-import { useSubscribe } from "replicache-react";
-import { Message } from "types";
 
 export default function Home() {
   const { rep } = useReplicache();
   useReplicachePokeListener({ rep });
 
   const session = useSession();
-
-  const messages = useSubscribe(
-    rep,
-    async (tx) => {
-      const list = await tx
-        .scan<Message>({ prefix: "message/" })
-        .entries()
-        .toArray();
-      list.sort(([, { order: a }], [, { order: b }]) => a - b);
-      return list;
-    },
-    { default: [] }
-  );
+  const messages = useMessages({ rep });
 
   const usernameRef = useRef<HTMLInputElement>(null);
   const contentRef = useRef<HTMLInputElement>(null);
@@ -31,14 +22,14 @@ export default function Home() {
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     const last = messages.at(messages.length - 1);
-    const order = (last ? last[1].order : 0) + 1;
+    const order = (last ? last[1].ord : 0) + 1;
 
     if (rep && usernameRef.current && contentRef.current) {
       rep.mutate.createMessage({
         id: nanoid(),
-        from: usernameRef.current.value,
+        sender: usernameRef.current.value,
         content: contentRef.current.value,
-        order,
+        ord: order,
       });
       contentRef.current.value = "";
     }
@@ -56,17 +47,15 @@ export default function Home() {
   );
 }
 
-function MessageList({
-  messages,
-}: {
-  messages: (readonly [string, Message])[];
+function MessageList(props: {
+  messages: (readonly [string, ClientMessage])[];
 }) {
   return (
     <>
-      {messages.map(([k, v]) => {
+      {props.messages.map(([k, v]) => {
         return (
           <div key={k}>
-            <b>{v.from}: </b>
+            <b>{v.sender}: </b>
             {v.content}
           </div>
         );
