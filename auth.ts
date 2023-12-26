@@ -26,24 +26,13 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
       return token;
     },
     async session({ session, token }) {
-      // console.log('SESSION', session, token)
       // Add custom user information to the session object
       const user = await prisma.user.findFirstOrThrow({
         where: { email: session.user?.email },
         select: { id: true, email: true },
       });
 
-      //   // If user has no spaces, create one
-      //   if (user.spaces.length === 0) {
-      //     const space = await prisma.space.create({
-      //       data: { spaceId: createId(), userId: user.id },
-      //       include: { user: true },
-      //     });
-      //     session.user = { ...user, spaces: [space] };
-      //   } else {
-      //     session.user = user;
-      //   }
-
+      session.user = user;
       return session;
     },
   },
