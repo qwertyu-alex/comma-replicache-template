@@ -54,5 +54,11 @@ For any issues, visit [https://github.com/rocicorp/replicache](https://github.co
 
 
 ## 🧐
+
 Follow me on X or reach out if you have any questions:
 [qwertyu_alex](https://twitter.com/qwertyu_alex)
+
+
+<p align="center">
+<b>This repository is open to contributions</b>
+</p>
